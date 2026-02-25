@@ -1,7 +1,7 @@
 {
-  "name": "nekter-dashboard",
+  "name": "AI Agent Ops Center",
   "version": "1.0.0",
-  "description": "Native Nekter dashboard rebuild with agent control, outreach pipeline, BOS tracker, memory browser, and Jarvis voice widget",
+  "description": "Native Agent dashboard rebuild with agent control, outreach pipeline, BOS tracker, memory browser, and Jarvis voice widget",
   "main": "server.js",
   "type": "module",
   "scripts": {
