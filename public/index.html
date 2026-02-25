@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nekter AI Agency - Operations Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css">
+
+</head>
+<body>
+  <header class="header">
+    <div class="header-content">
+      <div class="logo">
+        <div class="logo-icon">🤖</div>
+        <div>
+          <h1>Nekter AI Agency</h1>
+          <p>Operations Dashboard</p>
+        </div>
+      </div>
+      <div class="header-status">
+        <div class="status-dot"></div>
+        <span>Live • Auto-refresh 10s</span>
+      </div>
+    </div>
+  </header>
+
+  <nav class="tab-nav">
+    <div class="tab-nav-inner">
+      <button class="tab-btn active" onclick="switchTab('overview', this)" data-tab="overview">📊 Overview</button>
+      <button class="tab-btn" onclick="switchTab('kitchen', this)" data-tab="kitchen">🍳 Kitchen</button>
+      <button class="tab-btn" onclick="switchTab('agent-control', this)" data-tab="agent-control">🧠 Agent Control</button>
+      <button class="tab-btn" onclick="switchTab('pipeline', this)" data-tab="pipeline">🧭 Pipeline</button>
+      <button class="tab-btn" onclick="switchTab('launch', this)" data-tab="launch">🚀 Launch</button>
+      <button class="tab-btn" onclick="switchTab('business', this)" data-tab="business">💼 Business</button>
+      <button class="tab-btn" onclick="switchTab('memory', this)" data-tab="memory">🧾 Memory</button>
+      <button class="tab-btn" onclick="switchTab('jarvis', this)" data-tab="jarvis">🎙️ Talk to Jarvis</button>
+    </div>
+  </nav>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- ═══════════════════════════ OPERATIONS TAB ═══════════════════════════ -->
+  <div id="tab-overview" class="tab-content active">
+  <main class="container">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="label">Agents Online</div>
+        <div class="value" id="online-count">-</div>
+        <div class="subtitle">of 4 registered</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Active Gigs</div>
+        <div class="value" id="gig-count">-</div>
+        <div class="subtitle">in progress</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Total Messages</div>
+        <div class="value" id="message-count">-</div>
+        <div class="subtitle">all time</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Today's Activity</div>
+        <div class="value" id="today-count">-</div>
+        <div class="subtitle">messages today</div>
+      </div>
+    </div>
+
+    <div class="main-grid">
+      <div class="panel">
+        <div class="panel-header"><h2>🤖 Agents</h2></div>
+        <div class="panel-content">
+          <div class="agent-list" id="agent-list"><div class="empty-state"><p>Loading...</p></div></div>
+        </div>
+      </div>
+      <div class="panel messages-panel">
+        <div class="panel-header"><h2>💬 Agent Communications</h2></div>
+        <div class="panel-content">
+          <div class="filters">
+            <div class="filter-group">
+              <label>Agent:</label>
+              <select class="filter-select" id="filter-agent">
+                <option value="">All Agents</option>
+                <option value="Jarvis">Jarvis</option>
+                <option value="CLU">CLU</option>
+                <option value="Cortana">Cortana</option>
+                <option value="Sp3cter">Sp3cter</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label>Date:</label>
+              <input type="date" class="filter-input" id="filter-date">
+            </div>
+            <input type="text" class="filter-input search-input" id="filter-search" placeholder="🔍 Search messages...">
+          </div>
+          <div class="message-list" id="message-list">
+            <div class="empty-state"><div class="icon">💬</div><p>No messages yet</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-grid">
+      <div class="panel">
+        <div class="panel-header">
+          <h2>📝 Active Bids</h2>
+          <div class="bid-stats" id="bid-stats"></div>
+        </div>
+        <div class="panel-content">
+          <div class="bid-list" id="bid-list">
+            <div class="empty-state"><div class="icon">📝</div><p>No bids yet — agents are hunting!</p></div>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><h2>🐝 Active Gigs</h2></div>
+        <div class="panel-content">
+          <div class="gig-list" id="gig-list">
+            <div class="empty-state"><div class="icon">🐝</div><p>No active gigs — win those bids!</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  </div>
+
+  <!-- ═══════════════════════════ KITCHEN TAB ═══════════════════════════ -->
+  <div id="tab-kitchen" class="tab-content">
+    <div class="kitchen-grid">
+
+      <!-- ── Rate Limit Monitor ─────────────────────────────────── -->
+      <div class="k-panel rate-limit-widget">
+        <div class="rl-header">
+          <div class="rl-title">
+            <div class="live-dot"></div>
+            <span>⚡ Token Rate Monitor</span>
+            <span style="font-size:0.72rem;color:var(--text-muted);font-weight:400;">5-hour rolling window</span>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center">
+            <span class="sync-indicator" id="rl-sync">Loading...</span>
+            <button class="btn btn-purple btn-sm" onclick="loadRateLimit()">↻ Refresh</button>
+          </div>
+        </div>
+        <div id="rl-content" class="rl-body">
+          <div class="rl-progress-section">
+            <div class="rl-progress-header">
+              <div class="rl-token-count" id="rl-token-count">—</div>
+              <div class="rl-limit-label" id="rl-limit-label">/ — estimated limit</div>
+            </div>
+            <div class="rl-progress-track">
+              <div class="rl-progress-bar green" id="rl-bar" style="width:0%"></div>
+            </div>
+            <div class="rl-pct-label" id="rl-pct">Calculating...</div>
+            <div class="rl-stats-grid">
+              <div class="rl-stat">
+                <div class="label">🔥 Burn Rate</div>
+                <div class="val" id="rl-burn">—</div>
+                <div style="font-size:0.68rem;color:var(--text-muted)">tokens/min</div>
+              </div>
+              <div class="rl-stat">
+                <div class="label">⏱ Reset In</div>
+                <div class="val" id="rl-reset">—</div>
+                <div style="font-size:0.68rem;color:var(--text-muted)">minutes</div>
+              </div>
+              <div class="rl-stat">
+                <div class="label">📥 Input</div>
+                <div class="val" id="rl-input">—</div>
+              </div>
+              <div class="rl-stat">
+                <div class="label">📤 Output</div>
+                <div class="val" id="rl-output">—</div>
+              </div>
+            </div>
+          </div>
+          <div class="rl-cost-section">
+            <div class="rl-cost-label">💸 5h Cost</div>
+            <div class="rl-cost-val" id="rl-cost">—</div>
+            <div class="rl-cost-sub" id="rl-calls">— API calls</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Middle Row: Agent Status + Live Feed ─────────────────── -->
+      <div class="k-middle-grid">
+
+        <!-- Agent Status -->
+        <div class="k-panel">
+          <div class="k-panel-header">
+            <h2>🤖 Agent Status</h2>
+            <span class="sync-indicator" id="k-agent-sync">Loading...</span>
+          </div>
+          <div class="k-panel-body">
+            <div class="k-agent-grid" id="k-agent-list">
+              <p style="color:var(--text-muted);font-size:0.85rem">Loading agents...</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Feed -->
+        <div class="k-panel live-feed-panel">
+          <div class="feed-header">
+            <h2>📡 Live Agent Feed</h2>
+            <span class="feed-connection disconnected" id="feed-status">Connecting...</span>
+          </div>
+          <div class="feed-list" id="feed-list">
+            <div class="feed-empty">⏳ Waiting for agent activity...</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── Cron Manager ─────────────────────────────────────────── -->
+      <div class="k-panel">
+        <div class="k-panel-header">
+          <h2>⏱️ Cron Manager</h2>
+          <div style="display:flex;gap:10px;align-items:center">
+            <span class="sync-indicator" id="k-cron-sync">Loading...</span>
+            <button class="btn btn-blue btn-sm" onclick="refreshKitchen()">↻ Refresh</button>
+          </div>
+        </div>
+        <div class="k-panel-body">
+          <div class="cron-cards" id="k-cron-cards">
+            <p style="color:var(--text-muted);font-size:0.85rem">Loading cron jobs...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Task Board ────────────────────────────────────────────── -->
+      <div class="k-panel">
+        <div class="k-panel-header">
+          <h2>📋 Task Board</h2>
+          <button class="btn btn-cyan btn-sm" onclick="showAddTask()">+ Add Task</button>
+        </div>
+        <div class="k-panel-body">
+          <div id="k-add-task-form" style="display:none;margin-bottom:16px">
+            <div class="add-task-form">
+              <input class="k-input" id="k-task-title" placeholder="Task title..." />
+              <select class="k-select" id="k-task-status">
+                <option value="backlog">Backlog</option>
+                <option value="in-progress">In Progress</option>
+                <option value="done">Done</option>
+              </select>
+              <select class="k-select" id="k-task-assignee">
+                <option value="">No assignee</option>
+                <option value="Jarvis">Jarvis</option>
+                <option value="CLU">CLU</option>
+                <option value="Cortana">Cortana</option>
+                <option value="Sp3cter">Sp3cter</option>
+              </select>
+              <button class="btn btn-green" onclick="addTask()">✓ Add</button>
+              <button class="btn btn-red" onclick="document.getElementById('k-add-task-form').style.display='none'">✕</button>
+            </div>
+          </div>
+          <div class="kanban">
+            <div class="kanban-col">
+              <div class="kanban-col-header">📥 Backlog <span id="k-count-backlog">0</span></div>
+              <div id="k-col-backlog"></div>
+            </div>
+            <div class="kanban-col">
+              <div class="kanban-col-header">🔄 In Progress <span id="k-count-in-progress">0</span></div>
+              <div id="k-col-in-progress"></div>
+            </div>
+            <div class="kanban-col">
+              <div class="kanban-col-header">✅ Done <span id="k-count-done">0</span></div>
+              <div id="k-col-done"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div><!-- /tab-kitchen -->
+
+  <div id="tab-agent-control" class="tab-content">
+    <main class="container">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="label">Agents Online</div>
+          <div class="value" id="agent-control-online">-</div>
+          <div class="subtitle">reporting in</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Unique Models</div>
+          <div class="value" id="agent-control-models">-</div>
+          <div class="subtitle">stacked</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Last Seen</div>
+          <div class="value" id="agent-control-last">-</div>
+          <div class="subtitle">refreshes automatically</div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-header">
+          <h2>🧠 Agent Control</h2>
+          <span class="sync-indicator" id="agent-control-sync">Loading...</span>
+        </div>
+        <div class="panel-content">
+          <div class="agent-control-list" id="agent-control-list">
+            <div class="empty-state"><div class="icon">🧭</div><p>Loading agent controls...</p></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="tab-pipeline" class="tab-content">
+    <main class="container">
+      <div class="panel">
+        <div class="panel-header">
+          <h2>🧭 Pipeline</h2>
+          <div style="display:flex;gap:10px;align-items:center">
+            <span class="sync-indicator" id="pipeline-sync">Loading...</span>
+            <button class="btn btn-purple btn-sm" onclick="loadPipelineData()">↻ Refresh</button>
+          </div>
+        </div>
+        <div class="panel-content">
+          <div class="stage-pill-grid" id="pipeline-stage-grid">
+            <div class="mini-pill">Curating stages…</div>
+          </div>
+          <div class="table-card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+              <strong>Leads</strong>
+              <span class="sync-indicator" id="pipeline-count">- leads</span>
+            </div>
+            <div style="overflow:auto">
+              <table class="pipeline-table">
+                <thead>
+                  <tr>
+                    <th>Company</th>
+                    <th>Stage</th>
+                    <th>Contact</th>
+                    <th>Notes</th>
+                  </tr>
+                </thead>
+                <tbody id="pipeline-leads">
+                  <tr><td colspan="4" style="text-align:center;color:var(--text-muted)">Loading leads…</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="tab-launch" class="tab-content">
+    <main class="container">
+      <div class="panel">
+        <div class="panel-header">
+          <h2>🚀 Launch Campaign</h2>
+          <span class="sync-indicator" id="launch-status">Ready</span>
+        </div>
+        <div class="panel-content">
+          <p style="margin-bottom:12px;color:var(--text-secondary)">Queue a cold-email campaign via workflow <strong>7EW1IIIYoP4vdN4N</strong>.</p>
+          <form id="launch-form">
+            <div class="filters" style="background: rgba(255,255,255,0.02);">
+              <div class="filter-group">
+                <label>Vertical</label>
+                <select class="filter-select" id="launch-vertical" required>
+                  <option value="">Choose vertical</option>
+                  <option>HVAC</option>
+                  <option>Plumbing</option>
+                  <option>Roofing</option>
+                  <option>Dental</option>
+                  <option>Security</option>
+                </select>
+              </div>
+              <div class="filter-group">
+                <label>City</label>
+                <input class="filter-input" id="launch-city" placeholder="Las Vegas" required />
+              </div>
+            </div>
+            <div style="margin-top:12px">
+              <label for="launch-notes" style="display:block;margin-bottom:6px;font-size:0.78rem;color:var(--text-muted)">Notes for the workflow</label>
+              <textarea id="launch-notes" rows="3" class="k-input" placeholder="Include a short reminder for voice + follow-up"></textarea>
+            </div>
+            <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+              <button class="btn btn-green" type="submit">Queue Launch</button>
+              <span id="launch-response" class="sync-indicator" style="font-size:0.78rem">Awaiting input</span>
+            </div>
+          </form>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="tab-business" class="tab-content">
+    <main class="container">
+      <div class="panel">
+        <div class="panel-header">
+          <h2>💼 Business OS</h2>
+          <span class="sync-indicator" id="business-sync">Loading...</span>
+        </div>
+        <div class="panel-content">
+          <div class="bos-summary">
+            <div class="mini-pill">
+              <span>Monthly Recurring Revenue</span>
+              <strong id="bos-mrr">$0</strong>
+            </div>
+            <div class="mini-pill">
+              <span>Projected Income</span>
+              <strong id="bos-projected">$0</strong>
+            </div>
+            <div class="mini-pill">
+              <span>Referrals</span>
+              <strong id="bos-ref-count">0</strong>
+            </div>
+          </div>
+          <div class="bos-card">
+            <h3>Client Installs</h3>
+            <div id="bos-clients">
+              <p style="color:var(--text-muted);font-size:0.85rem">Loading clients…</p>
+            </div>
+          </div>
+          <div class="bos-card">
+            <h3>Referrals</h3>
+            <ul id="bos-referrals" style="list-style:none;padding:0;margin:0">
+              <li style="color:var(--text-muted);font-size:0.85rem">Waiting for data…</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="tab-memory" class="tab-content">
+    <main class="container">
+      <div class="panel">
+        <div class="panel-header">
+          <h2>🧾 Memory Files</h2>
+          <span class="sync-indicator" id="memory-sync">Loading...</span>
+        </div>
+        <div class="panel-content">
+          <div id="memory-files">
+            <div class="empty-state"><div class="icon">📚</div><p>Loading vault…</p></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="tab-jarvis" class="tab-content">
+    <main class="container">
+      <div class="panel">
+        <div class="panel-header">
+          <h2>🎙️ Talk to Jarvis</h2>
+          <span class="sync-indicator" id="jarvis-sync">Loading...</span>
+        </div>
+        <div class="panel-content">
+          <p style="margin-bottom:12px;color:var(--text-secondary)">Jarvis now speaks via ElevenLabs Mark. Open the voice console, drop a prompt, and he replies using the Jarvis voice.</p>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <button class="btn btn-green" id="jarvis-open" type="button">Open the voice widget</button>
+            <span class="sync-indicator" id="jarvis-link-label">Waiting on widget link...</span>
+          </div>
+          <div class="mini-pill-grid" id="jarvis-widget-info" style="margin-top:14px"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <footer class="footer">
+    <p>Nekter AI Agency © 2026 • Powered by <span>Clawdbot</span></p>
+  </footer>
+  <script src="/app.js"></script>
+</body>
+</html>

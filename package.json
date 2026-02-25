@@ -1,0 +1,17 @@
+{
+  "name": "nekter-dashboard",
+  "version": "1.0.0",
+  "description": "Native Nekter dashboard rebuild with agent control, outreach pipeline, BOS tracker, memory browser, and Jarvis voice widget",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "keywords": [],
+  "author": "Nekter AI",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
